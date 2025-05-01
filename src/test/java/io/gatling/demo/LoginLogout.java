@@ -76,8 +76,8 @@ public class LoginLogout extends Simulation {
         .post("/cgi-bin/login.pl")
         .headers(headers_4)
         .formParam("userSession", "#{userSession}")
-        .formParam("username", "jojo")
-        .formParam("password", "bean")
+        .formParam("username", "#{username}")
+        .formParam("password", "#{password}")
         .formParam("login.x", "56")
         .formParam("login.y", "8")
         .formParam("JSFormSubmit", "off")
@@ -120,6 +120,6 @@ public class LoginLogout extends Simulation {
     );
 
   {
-	  setUp(scn.injectOpen(atOnceUsers(1))).protocols(httpProtocol);
+	  setUp(scn.injectOpen(atOnceUsers(10))).protocols(httpProtocol);
   }
 }

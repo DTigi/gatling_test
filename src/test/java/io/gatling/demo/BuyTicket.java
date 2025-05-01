@@ -82,9 +82,11 @@ public class BuyTicket extends Simulation {
 
 // кормушки
   private static final FeederBuilder <String> userDataFeeder = csv("fake_users.csv").circular();
+  private static final FeederBuilder <String> citiesDataFeeder = csv("routes.csv").circular();
 
   private ScenarioBuilder scn = scenario("BuyTicket")
     .feed(userDataFeeder)
+    .feed(citiesDataFeeder)
     .exec(
       // homepage,
       http("Homepage")
@@ -95,12 +97,13 @@ public class BuyTicket extends Simulation {
               .headers(headers_1),
       http("/cgi-bin/welcome.pl?signOff=true")
               .get("/cgi-bin/welcome.pl?signOff=true")
-              .headers(headers_2),
+              .headers(headers_2)
+              .check(substring("A Session ID has been created and loaded into a cookie called MSO")),
       http("/cgi-bin/nav.pl?in=home")
               .get("/cgi-bin/nav.pl?in=home")
               .headers(headers_2)
               .check(regex("name=\"userSession\" value=\"(.+?)\"").saveAs("userSession")),
-      pause(3),
+      pause(2),
       // login,
       http("Login")
               .post("/cgi-bin/login.pl")
@@ -120,11 +123,13 @@ public class BuyTicket extends Simulation {
             .get("/cgi-bin/login.pl?intro=true")
             .headers(headers_2)
         ),
-      pause(30),
+      pause(2),
       // flights,
-      http("request_7")
+      http("Flights")
         .get("/cgi-bin/welcome.pl?page=search")
         .headers(headers_2)
+        .check(substring("User has returned to the search page.  Since user has already logged on,\n" +
+                " we can give them the menu in the navbar."))
         .resources(
           http("request_8")
             .get("/cgi-bin/nav.pl?page=menu&in=flights")
@@ -139,29 +144,36 @@ public class BuyTicket extends Simulation {
             .get("/cgi-bin/reservations.pl?page=welcome")
             .headers(headers_2)
         ),
-      pause(73),
+      pause(2),
       // findFlight,
-      http("request_12")
+      http("FindFlight")
         .post("/cgi-bin/reservations.pl")
         .headers(headers_12)
-        .body(RawFileBody("io/gatling/demo/buyticket/0012_request.html")),
-      pause(50),
+        .body(ElFileBody("0012_request.html"))
+        .check(bodyString().saveAs("responseBody"))
+        .check(regex("name=\"outboundFlight\" value=\"(.+?)\"").saveAs("outboundFlight"))
+        .check(substring("Flight departing from <B>#{departCity}</B> to <B>#{arriveCity}</B>")),
+      pause(2),
       // paymenDetails,
-      http("request_13")
+      http("PaymentDetails")
         .post("/cgi-bin/reservations.pl")
         .headers(headers_13)
-        .body(RawFileBody("io/gatling/demo/buyticket/0013_request.html")),
-      pause(72),
+        .body(ElFileBody("0013_request.html"))
+        .check(substring("name=\"outboundFlight\" value=\"${outboundFlight}")),
+      pause(2),
       // Invoice,
-      http("request_14")
+      http("Invoice")
         .post("/cgi-bin/reservations.pl")
         .headers(headers_14)
-        .body(RawFileBody("io/gatling/demo/buyticket/0014_request.html")),
-      pause(31),
+        .body(ElFileBody("0014_request.html"))
+        .check(substring("leaves ${departCity}  for ${arriveCity}")),
+      pause(2),
       // showItineraty,
-      http("request_15")
+      http("ShowItineraty")
         .get("/cgi-bin/welcome.pl?page=itinerary")
         .headers(headers_2)
+        .check(substring("User wants the intineraries.  Since user has already logged on,\n" +
+                " we can give them the menu in the navbar."))
         .resources(
           http("request_16")
             .get("/cgi-bin/nav.pl?page=menu&in=itinerary")
@@ -179,24 +191,33 @@ public class BuyTicket extends Simulation {
             .get("/WebTours/images/cancelallreservations.gif")
             .headers(headers_9)
         ),
-      pause(38),
-      // deleteOneTicket,
-      http("DeleteOneTicket")
-        .post("/cgi-bin/itinerary.pl")
-        .headers(headers_21)
-        .body(RawFileBody("io/gatling/demo/buyticket/0021_request.html")),
-      pause(17),
+      pause(2),
+//      // deleteOneTicket,
+//      http("DeleteOneTicket")
+//        .post("/cgi-bin/itinerary.pl")
+//        .headers(headers_21)
+//        .body(EFileBody("0021_request.html")),
+//      pause(2),
       // signOff,
-      http("request_22")
+      http("SignOff")
         .get("/cgi-bin/welcome.pl?signOff=1")
         .headers(headers_2)
+        .check(substring("<!-- \n" +
+          " A Session ID has been created and loaded into a cookie called MSO.\n" +
+          " Also, the server options have been loaded into the cookie called\n" +
+          " MSO as well.  The server options can be set via the Admin page.\n" +
+          " --->"))
         .resources(
           http("request_23")
             .get("/cgi-bin/nav.pl?in=home")
             .headers(headers_2)
         )
-    );
-
+    )
+    .exec(session -> {
+        String responseBody = session.getString("responseBody");
+        System.out.println("Response body:" + responseBody);
+        return session;
+      });
   {
 	  setUp(scn.injectOpen(atOnceUsers(1))).protocols(httpProtocol);
   }

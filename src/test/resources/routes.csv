@@ -1,0 +1,71 @@
+departCity,arriveCity
+Denver,London
+Denver,Paris
+Denver,Portland
+Denver,Seattle
+Denver,Sydney
+Denver,Zurich
+Frankfurt,Denver
+Frankfurt,London
+Frankfurt,Los Angeles
+Frankfurt,Paris
+Frankfurt,San Francisco
+Frankfurt,Seattle
+Frankfurt,Sydney
+Frankfurt,Zurich
+London,Denver
+London,Frankfurt
+London,Los Angeles
+London,Paris
+London,San Francisco
+London,Seattle
+London,Sydney
+London,Zurich
+Los Angeles,Frankfurt
+Los Angeles,London
+Los Angeles,Paris
+Los Angeles,Portland
+Los Angeles,San Francisco
+Los Angeles,Sydney
+Los Angeles,Zurich
+Paris,Frankfurt
+Paris,London
+Paris,Los Angeles
+Paris,Portland
+Paris,San Francisco
+Paris,Sydney
+Paris,Zurich
+Portland,Denver
+Portland,Frankfurt
+Portland,London
+Portland,Los Angeles
+Portland,San Francisco
+Portland,Sydney
+San Francisco,Denver
+San Francisco,Los Angeles
+San Francisco,Paris
+San Francisco,Seattle
+San Francisco,Sydney
+Seattle,Denver
+Seattle,Frankfurt
+Seattle,London
+Seattle,Los Angeles
+Seattle,Paris
+Seattle,San Francisco
+Seattle,Zurich
+Sydney,Denver
+Sydney,Frankfurt
+Sydney,Paris
+Sydney,Portland
+Sydney,San Francisco
+Sydney,Seattle
+Sydney,Zurich
+Zurich,Denver
+Zurich,Frankfurt
+Zurich,London
+Zurich,Los Angeles
+Zurich,Paris
+Zurich,Portland
+Zurich,San Francisco
+Zurich,Seattle
+Zurich,Sydney
