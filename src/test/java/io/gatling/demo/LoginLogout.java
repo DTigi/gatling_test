@@ -65,7 +65,7 @@ public class LoginLogout extends Simulation {
       http("/cgi-bin/welcome.pl?signOff=true")
         .get("/cgi-bin/welcome.pl?signOff=true")
         .headers(headers_2)
-        .check(substring("A Session ID has been created and loaded into a cookie called MSO"))
+        .check(substring("A Session ID has been created and loaded into a cookie called MSO")),
       http("/cgi-bin/nav.pl?in=home")
         .get("/cgi-bin/nav.pl?in=home")
         .headers(headers_2)
@@ -76,8 +76,8 @@ public class LoginLogout extends Simulation {
         .post("/cgi-bin/login.pl")
         .headers(headers_4)
         .formParam("userSession", "#{userSession}")
-        .formParam("username", "#{username}")
-        .formParam("password", "#{password}")
+        .formParam("username", "jojo")
+        .formParam("password", "bean")
         .formParam("login.x", "56")
         .formParam("login.y", "8")
         .formParam("JSFormSubmit", "off")
@@ -107,6 +107,11 @@ public class LoginLogout extends Simulation {
       http("SignOff")
         .get("/cgi-bin/welcome.pl?signOff=1")
         .headers(headers_2)
+        .check(substring("<!-- \n" +
+                " A Session ID has been created and loaded into a cookie called MSO.\n" +
+                " Also, the server options have been loaded into the cookie called\n" +
+                " MSO as well.  The server options can be set via the Admin page.\n" +
+                " --->"))
         .resources(
           http("/cgi-bin/nav.pl?in=home")
             .get("/cgi-bin/nav.pl?in=home")
