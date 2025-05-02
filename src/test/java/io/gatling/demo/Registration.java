@@ -8,7 +8,7 @@ import io.gatling.javaapi.http.*;
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
 
-public class Register extends Simulation {
+public class Registration extends Simulation {
 
   private HttpProtocolBuilder httpProtocol = http
     .baseUrl("http://localhost:1080")
@@ -43,20 +43,31 @@ public class Register extends Simulation {
 
   private ScenarioBuilder scn = scenario("Register")
     .feed(userDataFeeder)
+
+    // генерация username и password
+    .exec(session -> {
+        String username = UUID.randomUUID().toString().substring(0, 8);
+        String password = UUID.randomUUID().toString().replace("-", "").substring(0, 10);
+
+        return session
+        .set("username", username)
+        .set("password", password);
+    })
+
     .exec(
       // homepage,
       http("Homepage")
         .get("/WebTours/")
         .headers(headers_0)
         .resources(
-          http("request_1")
+          http("/WebTours/header.html")
             .get("/WebTours/header.html")
             .headers(headers_1),
-          http("request_2")
+          http("/cgi-bin/welcome.pl?signOff=true")
             .get("/cgi-bin/welcome.pl?signOff=true")
             .headers(headers_2)
             .check(substring("A Session ID has been created and loaded into a cookie called MSO")),
-          http("request_3")
+          http("/cgi-bin/nav.pl?in=home")
             .get("/cgi-bin/nav.pl?in=home")
             .headers(headers_2)
             .check(regex("name=\"userSession\" value=\"(.+?)\"").saveAs("userSession"))
@@ -81,10 +92,10 @@ public class Register extends Simulation {
         .get("/cgi-bin/welcome.pl?page=menus")
         .headers(headers_2)
         .resources(
-          http("request_7")
+          http("/cgi-bin/nav.pl?page=menu&in=home")
             .get("/cgi-bin/nav.pl?page=menu&in=home")
             .headers(headers_2),
-          http("request_8")
+          http("/cgi-bin/login.pl?intro=true")
             .get("/cgi-bin/login.pl?intro=true")
             .headers(headers_2)
             .check(substring("Welcome, <b>#{username}</b>, to the Web Tours reservation"))
@@ -100,7 +111,7 @@ public class Register extends Simulation {
               " MSO as well.  The server options can be set via the Admin page.\n" +
               " --->"))
         .resources(
-          http("request_10")
+          http("/cgi-bin/nav.pl?in=home")
             .get("/cgi-bin/nav.pl?in=home")
             .headers(headers_2)
         )

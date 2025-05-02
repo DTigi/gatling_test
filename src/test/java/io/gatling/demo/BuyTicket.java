@@ -1,6 +1,9 @@
 package io.gatling.demo;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import io.gatling.javaapi.core.*;
 import io.gatling.javaapi.http.*;
@@ -8,7 +11,7 @@ import io.gatling.javaapi.http.*;
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
 
-public class BuyTick extends Simulation {
+public class BuyTicket extends Simulation {
 
   private HttpProtocolBuilder httpProtocol = http
     .baseUrl("http://localhost:1080")
@@ -63,19 +66,41 @@ public class BuyTick extends Simulation {
   private ScenarioBuilder scn = scenario("BuyTick")
       .feed(userDataFeeder)
       .feed(citiesDataFeeder)
+
+          // генерируем необходимые параметры
+      .exec(session -> {
+          LocalDate today = LocalDate.now();
+          LocalDate tomorrow = today.plusDays(1);
+          DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy");
+
+          // случайные параметры
+          String seatPref = List.of("Aisle", "Window", "None")
+                  .get(ThreadLocalRandom.current().nextInt(3));
+          String seatType = List.of("First", "Business", "Coach")
+                  .get(ThreadLocalRandom.current().nextInt(3));
+          int numPassengers = ThreadLocalRandom.current().nextInt(1, 6);
+          // Записываем в сессию
+          return session
+                  .set("departDate", today.format(formatter))
+                  .set("returnDate", tomorrow.format(formatter))
+                  .set("seatPref", seatPref)
+                  .set("seatType", seatType)
+                  .set("numPassengers", numPassengers);
+      })
+
     .exec(
       // homepage,
       http("HomePage")
         .get("/WebTours/")
         .headers(headers_0),
-          http("request_1")
+          http("/WebTours/header.html")
             .get("/WebTours/header.html")
             .headers(headers_1),
-          http("request_2")
+          http("/cgi-bin/welcome.pl?signOff=1")
             .get("/cgi-bin/welcome.pl?signOff=1")
             .headers(headers_2)
               .check(substring("A Session ID has been created and loaded into a cookie called MSO")),
-          http("request_3")
+          http("/cgi-bin/nav.pl?in=home")
             .get("/cgi-bin/nav.pl?in=home")
             .headers(headers_2)
             .check(regex("name=\"userSession\" value=\"(.+?)\"").saveAs("userSession")),
@@ -92,10 +117,10 @@ public class BuyTick extends Simulation {
         .formParam("JSFormSubmit", "off")
         .check(substring("User password was correct"))
         .resources(
-          http("request_5")
+          http("/cgi-bin/nav.pl?page=menu&in=home")
             .get("/cgi-bin/nav.pl?page=menu&in=home")
             .headers(headers_2),
-          http("request_6")
+          http("/cgi-bin/login.pl?intro=true")
             .get("/cgi-bin/login.pl?intro=true")
             .headers(headers_2)
         ),
@@ -107,10 +132,10 @@ public class BuyTick extends Simulation {
           .check(substring("User has returned to the search page.  Since user has already logged on,\n" +
               " we can give them the menu in the navbar."))
         .resources(
-          http("request_8")
+          http("/cgi-bin/nav.pl?page=menu&in=flights")
             .get("/cgi-bin/nav.pl?page=menu&in=flights")
             .headers(headers_2),
-          http("request_9")
+          http("/cgi-bin/reservations.pl?page=welcome")
             .get("/cgi-bin/reservations.pl?page=welcome")
             .headers(headers_2)
         ),
@@ -145,10 +170,10 @@ public class BuyTick extends Simulation {
           .check(substring("User wants the intineraries.  Since user has already logged on,\n" +
                   " we can give them the menu in the navbar."))
         .resources(
-          http("request_14")
+          http("/cgi-bin/nav.pl?page=menu&in=itinerary")
             .get("/cgi-bin/nav.pl?page=menu&in=itinerary")
             .headers(headers_2),
-          http("request_15")
+          http("/cgi-bin/itinerary.pl")
             .get("/cgi-bin/itinerary.pl")
             .headers(headers_2)
         ),
@@ -163,7 +188,7 @@ public class BuyTick extends Simulation {
                   " MSO as well.  The server options can be set via the Admin page.\n" +
                   " --->"))
         .resources(
-          http("request_17")
+          http("/cgi-bin/nav.pl?in=home")
             .get("/cgi-bin/nav.pl?in=home")
             .headers(headers_2)
         )
