@@ -72,7 +72,7 @@ public class Register extends Simulation {
       http("SignUpDone")
         .post("/cgi-bin/login.pl")
         .headers(headers_5)
-        .body(ElFileBody("0005_signup_request_body.html"))
+        .body(ElFileBody("signup_request_body.html"))
         .check(bodyString().saveAs("responseBody"))
         .check(substring("Thank you, <b>#{username}</b>, for registering")),
       pause(2),

@@ -1,15 +1,12 @@
 package io.gatling.demo;
 
-import java.time.Duration;
 import java.util.*;
 
 import io.gatling.javaapi.core.*;
 import io.gatling.javaapi.http.*;
-import io.gatling.javaapi.jdbc.*;
 
 import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.http.HttpDsl.*;
-import static io.gatling.javaapi.jdbc.JdbcDsl.*;
 
 public class BuyTick extends Simulation {
 
@@ -122,7 +119,7 @@ public class BuyTick extends Simulation {
       http("FindFlight")
         .post("/cgi-bin/reservations.pl")
         .headers(headers_10)
-        .body(ElFileBody("0010_request.html"))
+        .body(ElFileBody("find_flight_request_body.html"))
           .check(regex("name=\"outboundFlight\" value=\"(.+?)\"").saveAs("outboundFlight"))
           .check(substring("Flight departing from <B>#{departCity}</B> to <B>#{arriveCity}</B>")),
       pause(2),
@@ -130,7 +127,7 @@ public class BuyTick extends Simulation {
       http("PaymentDetail")
         .post("/cgi-bin/reservations.pl")
         .headers(headers_11)
-        .body(ElFileBody("0011_request.html"))
+        .body(ElFileBody("payment_detail_request_body.html"))
             .check(substring("name=\"outboundFlight\" value=\"#{outboundFlight}")),
 //            .check(bodyString().saveAs("responseBody")),
       pause(2),
@@ -138,7 +135,7 @@ public class BuyTick extends Simulation {
       http("Invoice")
         .post("/cgi-bin/reservations.pl")
         .headers(headers_12)
-        .body(ElFileBody("0012_request.html"))
+        .body(ElFileBody("invoice_request_body.html"))
             .check(regex(".+?#{departCity}.+?for.+?#{arriveCity}")),
       pause(2),
       // itinerary,
