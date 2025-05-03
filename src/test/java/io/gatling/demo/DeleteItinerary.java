@@ -2,6 +2,7 @@ package io.gatling.demo;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 import io.gatling.javaapi.core.*;
 import io.gatling.javaapi.http.*;
@@ -118,15 +119,84 @@ public class DeleteItinerary extends Simulation {
             .get("/cgi-bin/itinerary.pl")
             .headers(headers_2)
             .check(regex("name=\"flightID\".*?value=\"(.*?)\"").findAll().saveAs("flightIDs"))
-        ),
-      pause(21),
+        )
+    )
+          // формируем тело для удаления
+          .exec(session -> {
+            List<String> flightIDs = session.getList("flightIDs");
+
+            if (flightIDs == null || flightIDs.isEmpty()) {
+              System.err.println("❌ No flightIDs found — canceling session.");
+              return session.markAsFailed();
+            }
+
+            int randomIndex = ThreadLocalRandom.current().nextInt(flightIDs.size());
+            String selectedFlightID = flightIDs.get(randomIndex);
+
+            String boundary = "----geckoformboundary222472d79676a793e1f78f0d2856ffc0";
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < flightIDs.size(); i++) {
+              String flightID = flightIDs.get(i);
+              sb.append("--").append(boundary).append("\r\n")
+                      .append("Content-Disposition: form-data; name=\"flightID\"\r\n\r\n")
+                      .append(flightID).append("\r\n");
+
+              if (i == randomIndex) {
+                sb.append("--").append(boundary).append("\r\n")
+                        .append("Content-Disposition: form-data; name=\"").append(i + 1).append("\"\r\n\r\n")
+                        .append("on\r\n");
+              }
+            }
+
+            sb.append("--").append(boundary).append("\r\n")
+                    .append("Content-Disposition: form-data; name=\"removeFlights.x\"\r\n\r\n")
+                    .append("48\r\n")
+                    .append("--").append(boundary).append("\r\n")
+                    .append("Content-Disposition: form-data; name=\"removeFlights.y\"\r\n\r\n")
+                    .append("10\r\n");
+
+            for (int i = 1; i <= flightIDs.size(); i++) {
+              sb.append("--").append(boundary).append("\r\n")
+                      .append("Content-Disposition: form-data; name=\".cgifields\"\r\n\r\n")
+                      .append(i).append("\r\n");
+            }
+
+            sb.append("--").append(boundary).append("--\r\n");
+
+            return session
+                    .set("body", sb.toString())
+                    .set("boundary", boundary)
+                    .set("deletedFlightID", selectedFlightID);
+          })
+
+      .exec(
+      pause(2),
       // deleteItinerary,
       http("DeleteItinerary")
         .post("/cgi-bin/itinerary.pl")
         .headers(headers_11)
-        .body(RawFileBody("io/gatling/demo/deleteitinerary/0011_request.html")),
-      pause(27),
+        //.body(ElFileBody("delete_request_body.html")),
+        .body(StringBody(session -> session.getString("body")))
+        .check(regex("name=\"flightID\".*?value=\"(.*?)\"").findAll().saveAs("afterDeleteIDs")) // после удаления
+      )
 
+          // Проверка после удаления
+          .exec(session -> {
+            List<String> afterDeleteIDs = session.getList("afterDeleteIDs");
+            String deletedID = session.getString("deletedFlightID");
+
+            if (afterDeleteIDs != null && afterDeleteIDs.contains(deletedID)) {
+              System.err.println("❌ Flight ID " + deletedID + " was NOT deleted!");
+              return session.markAsFailed();
+            }
+
+            System.out.println("✅ Flight ID " + deletedID + " successfully deleted.");
+            return session;
+          })
+
+      .exec(
+      pause(2),
       // signOff,
       http("SignOff")
         .get("/cgi-bin/welcome.pl?signOff=1")
