@@ -330,8 +330,8 @@ public class UC_01_06 extends Simulation {
     );
 
 private ScenarioBuilder scnBuyTicket = scenario("UC1_BuyTicket")
-        .during(120).on(
-            pace(30)
+        .during(1200).on(
+            pace(42)
             .exec(DataPrepare)
             .exec(homepage)
             .pause(2)
@@ -349,8 +349,8 @@ private ScenarioBuilder scnBuyTicket = scenario("UC1_BuyTicket")
             );
 
 private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
-        .during(120).on(
-            pace(60)
+        .during(1200).on(
+            pace(52)
             .exec(DataPrepare)
             .exec(homepage)
             .pause(2)
@@ -364,8 +364,8 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
         );
 
     private ScenarioBuilder scnRegistration = scenario("UC3_Registration")
-            .during(120).on(
-                pace(30)
+            .during(1200).on(
+                pace(38)
                     .exec(homepage)
                     .pause(2)
                     .exec(signup)
@@ -376,8 +376,8 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
                     );
 
     private ScenarioBuilder scnWithoutPayment = scenario("UC4_WithoutPayment")
-            .during(120).on(
-                pace(30)
+            .during(1200).on(
+                pace(64)
                     .exec(DataPrepare)
                     .exec(homepage)
                     .pause(2)
@@ -393,8 +393,8 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
             );
 
     private ScenarioBuilder scnShowItinerary = scenario("UC5_ShowItinerary")
-            .during(120).on(
-                pace(30)
+            .during(1200).on(
+                pace(84)
                     .exec(DataPrepare)
                     .exec(homepage)
                     .pause(2)
@@ -406,8 +406,8 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
             );
 
     private ScenarioBuilder scnLoginLogout = scenario("UC6_LoginLogout")
-            .during(120).on(
-                pace(30)
+            .during(1200).on(
+                pace(960)
                     .exec(DataPrepare)
                     .exec(homepage)
                     .pause(2)
@@ -418,18 +418,18 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
                     .exec(signoff)
                  );
 {
-  setUp(scnBuyTicket.injectClosed(rampConcurrentUsers(1).to(1).during(10),
-                  constantConcurrentUsers(1).during(120)),
-          scnDeleteTicket.injectClosed(rampConcurrentUsers(1).to(1).during(10),
-                  constantConcurrentUsers(1).during(120)),
-          scnRegistration.injectClosed(rampConcurrentUsers(1).to(1).during(10),
-                  constantConcurrentUsers(1).during(120)),
-          scnWithoutPayment.injectClosed(rampConcurrentUsers(1).to(1).during(10),
-                  constantConcurrentUsers(1).during(120)),
-          scnShowItinerary.injectClosed(rampConcurrentUsers(1).to(1).during(10),
-                  constantConcurrentUsers(1).during(120)),
-          scnLoginLogout.injectClosed(rampConcurrentUsers(1).to(1).during(10),
-                  constantConcurrentUsers(1).during(120))
+  setUp(scnBuyTicket.injectClosed(rampConcurrentUsers(0).to(2).during(10),
+                  constantConcurrentUsers(2).during(1200)),
+          scnDeleteTicket.injectClosed(rampConcurrentUsers(0).to(1).during(10),
+                  constantConcurrentUsers(1).during(1200)),
+          scnRegistration.injectClosed(rampConcurrentUsers(0).to(1).during(10),
+                  constantConcurrentUsers(1).during(1200)),
+          scnWithoutPayment.injectClosed(rampConcurrentUsers(0).to(2).during(10),
+                  constantConcurrentUsers(2).during(1200)),
+          scnShowItinerary.injectClosed(rampConcurrentUsers(0).to(2).during(10),
+                  constantConcurrentUsers(2).during(1200)),
+          scnLoginLogout.injectClosed(rampConcurrentUsers(0).to(2).during(10),
+                  constantConcurrentUsers(2).during(1200))
   ).protocols(httpProtocol);
 }
 }
