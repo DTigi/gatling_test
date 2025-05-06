@@ -17,7 +17,7 @@ import static io.gatling.javaapi.core.CoreDsl.*;
 import static io.gatling.javaapi.core.CoreDsl.exec;
 import static io.gatling.javaapi.http.HttpDsl.http;
 
-public class UC_01_06 extends Simulation {
+public class Test_20_min extends Simulation {
 
     private HttpProtocolBuilder httpProtocol = http
             .baseUrl("http://localhost:1080")
@@ -330,7 +330,7 @@ public class UC_01_06 extends Simulation {
     );
 
 private ScenarioBuilder scnBuyTicket = scenario("UC1_BuyTicket")
-        .during(1200).on(
+        .forever().on(
             pace(42)
             .exec(DataPrepare)
             .exec(homepage)
@@ -349,7 +349,7 @@ private ScenarioBuilder scnBuyTicket = scenario("UC1_BuyTicket")
             );
 
 private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
-        .during(1200).on(
+        .forever().on(
             pace(52)
             .exec(DataPrepare)
             .exec(homepage)
@@ -364,7 +364,7 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
         );
 
     private ScenarioBuilder scnRegistration = scenario("UC3_Registration")
-            .during(1200).on(
+            .forever().on(
                 pace(38)
                     .exec(homepage)
                     .pause(2)
@@ -376,7 +376,7 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
                     );
 
     private ScenarioBuilder scnWithoutPayment = scenario("UC4_WithoutPayment")
-            .during(1200).on(
+            .forever().on(
                 pace(64)
                     .exec(DataPrepare)
                     .exec(homepage)
@@ -393,7 +393,7 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
             );
 
     private ScenarioBuilder scnShowItinerary = scenario("UC5_ShowItinerary")
-            .during(1200).on(
+            .forever().on(
                 pace(84)
                     .exec(DataPrepare)
                     .exec(homepage)
@@ -406,7 +406,7 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
             );
 
     private ScenarioBuilder scnLoginLogout = scenario("UC6_LoginLogout")
-            .during(1200).on(
+            .forever().on(
                 pace(960)
                     .exec(DataPrepare)
                     .exec(homepage)
@@ -418,18 +418,18 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
                     .exec(signoff)
                  );
 {
-  setUp(scnBuyTicket.injectClosed(rampConcurrentUsers(0).to(2).during(10),
+  setUp(scnBuyTicket.injectClosed(//rampConcurrentUsers(0).to(2).during(10),
                   constantConcurrentUsers(2).during(1200)),
-          scnDeleteTicket.injectClosed(rampConcurrentUsers(0).to(1).during(10),
+          scnDeleteTicket.injectClosed(//rampConcurrentUsers(0).to(1).during(10),
                   constantConcurrentUsers(1).during(1200)),
-          scnRegistration.injectClosed(rampConcurrentUsers(0).to(1).during(10),
+          scnRegistration.injectClosed(//rampConcurrentUsers(0).to(1).during(10),
                   constantConcurrentUsers(1).during(1200)),
-          scnWithoutPayment.injectClosed(rampConcurrentUsers(0).to(2).during(10),
+          scnWithoutPayment.injectClosed(//rampConcurrentUsers(0).to(2).during(10),
                   constantConcurrentUsers(2).during(1200)),
-          scnShowItinerary.injectClosed(rampConcurrentUsers(0).to(2).during(10),
+          scnShowItinerary.injectClosed(//rampConcurrentUsers(0).to(2).during(10),
                   constantConcurrentUsers(2).during(1200)),
-          scnLoginLogout.injectClosed(rampConcurrentUsers(0).to(2).during(10),
+          scnLoginLogout.injectClosed(//rampConcurrentUsers(0).to(2).during(10),
                   constantConcurrentUsers(2).during(1200))
-  ).protocols(httpProtocol);
+  ).protocols(httpProtocol).maxDuration(1200);
 }
 }
