@@ -329,8 +329,7 @@ public class Test_stress_pik extends Simulation {
     );
 
 private ScenarioBuilder scnBuyTicket = scenario("UC1_BuyTicket")
-        .forever().on(
-            pace(42)
+        .pace(42)
             .exec(DataPrepare)
             .exec(homepage)
             .pause(2)
@@ -345,11 +344,10 @@ private ScenarioBuilder scnBuyTicket = scenario("UC1_BuyTicket")
             .exec(invoice)
             .pause(2)
             .exec(signoff)
-            );
+            ;
 
 private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
-        .forever().on(
-            pace(52)
+        .pace(52)
             .exec(DataPrepare)
             .exec(homepage)
             .pause(2)
@@ -360,11 +358,10 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
             .exec(delete_itinerary)
             .pause(2)
             .exec(signoff)
-        );
+        ;
 
     private ScenarioBuilder scnRegistration = scenario("UC3_Registration")
-            .forever().on(
-                pace(38)
+            .pace(38)
                     .exec(homepage)
                     .pause(2)
                     .exec(signup)
@@ -372,11 +369,10 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
                     .exec(signup_done)
                     .pause(2)
                     .exec(login_after_registration)
-                    );
+                    ;
 
     private ScenarioBuilder scnWithoutPayment = scenario("UC4_WithoutPayment")
-            .forever().on(
-                pace(64)
+            .pace(64)
                     .exec(DataPrepare)
                     .exec(homepage)
                     .pause(2)
@@ -389,11 +385,10 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
                     .exec(payment_details)
                     .pause(2)
                     .exec(itinerary)
-            );
+            ;
 
     private ScenarioBuilder scnShowItinerary = scenario("UC5_ShowItinerary")
-            .forever().on(
-                pace(84)
+            .pace(84)
                     .exec(DataPrepare)
                     .exec(homepage)
                     .pause(2)
@@ -402,11 +397,10 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
                     .exec(itinerary)
                     .pause(2)
                     .exec(signoff)
-            );
+            ;
 
     private ScenarioBuilder scnLoginLogout = scenario("UC6_LoginLogout")
-            .forever().on(
-                pace(960)
+            .pace(960)
                     .exec(DataPrepare)
                     .exec(homepage)
                     .pause(2)
@@ -415,50 +409,65 @@ private ScenarioBuilder scnDeleteTicket = scenario("UC2_DeleteTicket")
                     .exec(flights)
                     .pause(2)
                     .exec(signoff)
-                 );
+                 ;
 {
-  setUp(scnBuyTicket.injectClosed(rampConcurrentUsers(1).to(6).during(60),
-                  constantConcurrentUsers(6).during(300),
-                  rampConcurrentUsers(6).to(4).during(5),
-                  constantConcurrentUsers(4).during(120),
-                  rampConcurrentUsers(4).to(2).during(5),
-                  constantConcurrentUsers(2).during(120),
-                  rampConcurrentUsers(2).to(1).during(5),
-                  constantConcurrentUsers(1).during(120)),
-          scnDeleteTicket.injectClosed(rampConcurrentUsers(1).to(4).during(60),
-                  constantConcurrentUsers(4).during(300),
-                  rampConcurrentUsers(4).to(3).during(5),
-                  constantConcurrentUsers(3).during(120),
-                  rampConcurrentUsers(3).to(2).during(5),
-                  constantConcurrentUsers(2).during(120),
-                  rampConcurrentUsers(2).to(1).during(5),
-                  constantConcurrentUsers(1).during(120)),
-          scnRegistration.injectClosed(rampConcurrentUsers(1).to(4).during(60),
-                  constantConcurrentUsers(4).during(300)),
-          scnWithoutPayment.injectClosed(rampConcurrentUsers(1).to(6).during(60),
-                  constantConcurrentUsers(6).during(300),
-                  rampConcurrentUsers(6).to(4).during(5),
-                  constantConcurrentUsers(4).during(120),
-                  rampConcurrentUsers(4).to(2).during(5),
-                  constantConcurrentUsers(2).during(120),
-                  rampConcurrentUsers(2).to(1).during(5),
-                  constantConcurrentUsers(1).during(120)),
-          scnShowItinerary.injectClosed(rampConcurrentUsers(1).to(6).during(60),
-                  constantConcurrentUsers(6).during(300),
-                  rampConcurrentUsers(6).to(4).during(5),
-                  constantConcurrentUsers(4).during(120),
-                  rampConcurrentUsers(4).to(2).during(5),
-                  constantConcurrentUsers(2).during(120),
-                  rampConcurrentUsers(2).to(1).during(5),
-                  constantConcurrentUsers(1).during(120)),
-          scnLoginLogout.injectClosed(rampConcurrentUsers(1).to(6).during(60),
-                  constantConcurrentUsers(6).during(300),
-                  rampConcurrentUsers(6).to(4).during(5),
-                  constantConcurrentUsers(4).during(120),
-                  rampConcurrentUsers(4).to(2).during(5),
-                  constantConcurrentUsers(2).during(120),
-                  rampConcurrentUsers(2).to(1).during(5),
-                  constantConcurrentUsers(1).during(120))
-  ).protocols(httpProtocol).maxDuration(740);
+    setUp(
+            scnBuyTicket.injectClosed(
+                    rampConcurrentUsers(1).to(6).during(60), // Наращивание до 6 пользователей
+                    constantConcurrentUsers(6).during(300),  // Удержание 6 пользователей
+                    rampConcurrentUsers(6).to(4).during(30), // Плавное снижение до 4 за 30 секунд
+                    constantConcurrentUsers(4).during(120),  // Удержание 4 пользователей
+                    rampConcurrentUsers(4).to(2).during(30), // Плавное снижение до 2
+                    constantConcurrentUsers(2).during(120),  // Удержание 2 пользователей
+                    rampConcurrentUsers(2).to(1).during(30), // Плавное снижение до 1
+                    constantConcurrentUsers(1).during(120)   // Удержание 1 пользователя
+            ),
+            scnDeleteTicket.injectClosed(
+                    rampConcurrentUsers(1).to(3).during(60),
+                    constantConcurrentUsers(3).during(300),
+                    rampConcurrentUsers(3).to(2).during(30),
+                    constantConcurrentUsers(2).during(120),
+                    rampConcurrentUsers(2).to(1).during(30),
+                    constantConcurrentUsers(1).during(120)
+            ),
+            scnRegistration.injectClosed(
+                    rampConcurrentUsers(1).to(3).during(60),
+                    constantConcurrentUsers(3).during(300),
+                    rampConcurrentUsers(3).to(2).during(30),
+                    constantConcurrentUsers(2).during(120),
+                    rampConcurrentUsers(2).to(1).during(30),
+                    constantConcurrentUsers(1).during(120)
+            ),
+            scnWithoutPayment.injectClosed(
+                    rampConcurrentUsers(1).to(6).during(60),
+                    constantConcurrentUsers(6).during(300),
+                    rampConcurrentUsers(6).to(4).during(30),
+                    constantConcurrentUsers(4).during(120),
+                    rampConcurrentUsers(4).to(2).during(30),
+                    constantConcurrentUsers(2).during(120),
+                    rampConcurrentUsers(2).to(1).during(30),
+                    constantConcurrentUsers(1).during(120)
+            ),
+            scnShowItinerary.injectClosed(
+                    rampConcurrentUsers(1).to(6).during(60),
+                    constantConcurrentUsers(6).during(300),
+                    rampConcurrentUsers(6).to(4).during(30),
+                    constantConcurrentUsers(4).during(120),
+                    rampConcurrentUsers(4).to(2).during(30),
+                    constantConcurrentUsers(2).during(120),
+                    rampConcurrentUsers(2).to(1).during(30),
+                    constantConcurrentUsers(1).during(120)
+            ),
+            scnLoginLogout.injectClosed(
+                    rampConcurrentUsers(1).to(6).during(60),
+                    constantConcurrentUsers(6).during(300),
+                    rampConcurrentUsers(6).to(4).during(30),
+                    constantConcurrentUsers(4).during(120),
+                    rampConcurrentUsers(4).to(2).during(30),
+                    constantConcurrentUsers(2).during(120),
+                    rampConcurrentUsers(2).to(1).during(30),
+                    constantConcurrentUsers(1).during(120)
+            )
+    ).protocols(httpProtocol).maxDuration(850);
 }
 }
